@@ -7,15 +7,19 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/idocument.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/session.h>
 
+
 #include <QtPlugin>
+#include <QMenu>
 
 #include "QtcCppcheckPlugin.h"
 #include "Constants.h"
@@ -45,7 +49,7 @@ namespace
   bool isFileNodeCheckable (const FileNode* node)
   {
     static QStringList extensions = supportedExtensions ();
-    QFileInfo info (node->path());
+    QFileInfo info (node->path().toString());
     QString extension = info.completeSuffix ();
     return (extensions.contains (extension));
   }
@@ -212,7 +216,7 @@ void QtcCppcheckPlugin::checkCurrentDocument()
     return;
   }
   // Check event if it not belongs to active project.
-  checkFiles (QStringList () << document->filePath ());
+  checkFiles (QStringList () << document->filePath ().toString());
 }
 
 void QtcCppcheckPlugin::checkActiveProject()
@@ -225,7 +229,7 @@ void QtcCppcheckPlugin::checkActiveProject()
 
 void QtcCppcheckPlugin::checkCurrentNode()
 {
-  Node* node = ProjectExplorerPlugin::instance ()->currentNode ();
+  Node *node = ProjectTree::currentNode ();
   if (node == NULL)
   {
     return;
@@ -248,7 +252,7 @@ QStringList QtcCppcheckPlugin::checkableFiles(const Node *node, bool forceSelect
       const FileNode* file = (const FileNode*) node;
       if (forceSelected || isFileNodeCheckable (file))
       {
-        files << file->path ();
+        files << file->path ().toString();
       }
     }
       break;
@@ -390,10 +394,10 @@ void QtcCppcheckPlugin::checkActiveProjectDocuments(int beginRow, int endRow,
     {
       continue;
     }
-    if (projectFileList_.contains (document->filePath ()) &&
+    if (projectFileList_.contains (document->filePath ().toString()) &&
         document->isModified () == modifiedFlag)
     {
-      filesToCheck << document->filePath ();
+      filesToCheck << document->filePath ().toString();
     }
   }
 
